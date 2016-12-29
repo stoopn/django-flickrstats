@@ -1,6 +1,6 @@
 # django-flickrstats
 
-A Django app to permanently store and analyze daily flickr photo stats.
+A Django app to permanently store and analyze daily flickr photo stats (work in progress)
 
 ## Installation
 
@@ -46,3 +46,7 @@ pip install django-nvd3
 ```
 
 This should get you all required dependencies to use this django app.
+
+## Using aggregator.py
+
+The script flickrstats/aggregator.py
