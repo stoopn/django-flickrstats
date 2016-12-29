@@ -18,7 +18,7 @@ We use [bower](http://bower.io) to manage the JavaScript libraries. bower can be
 ```
 brew install node.js
 ```
-This will also install the npm command. Next, install bower (the -g option installs bower globally)
+This will also install the `npm` command. Next, install bower (the `-g` option installs bower globally)
 
 ```
 npm install -g bower
@@ -38,14 +38,14 @@ bower install d3#4.4.0
 bower install nvd3#1.8.5
 ```
 
-Unfortunately, the stable version of python-nvd3 is not anymore compatible with the current d3/nvd3 branches. We thus have to install the fixed version (thanks, aniketmaithani, for fixing the chart.tooltip function!):
+Unfortunately, the stable version of python-nvd3 is not anymore compatible with the current d3/nvd3 branches. We thus have to install the fixed version (thanks, aniketmaithani, for fixing the `chart.tooltip function`!):
 
 ```
 pip install git+git://github.com/stoopn/python-nvd3.git
 pip install django-nvd3
 ```
 
-This should get you all required dependencies to use this django app. Install the flickrstats app using the usual python manage.py routines and migrate the DB to add necessary tables.
+This should get you all required dependencies to use this django app. Install the flickrstats app using the usual `python manage.py` routines and migrate the DB to add necessary tables.
 
 ## Using aggregator.py
 
@@ -56,5 +56,6 @@ api_secret = 'MY API SECRET'
 ```
 Now you should be ready to start aggregation by calling
 ```
-python aggregation.py```
+python aggregation.py
 ```
+The first time you run the script it will probably be rather slow, as it will download your entire photostream information, favorites, comments and views. On subsequent runs, the  script tries to download only new data to speed up things. Since flickr only stores detailed access statistics for the last 28 days, it is however important that you run `python aggregator.py` regularly, i.e. as a weekly or daily `cron` job.
