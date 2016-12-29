@@ -197,10 +197,11 @@ earliestts = calendar.timegm(earliestday.timetuple())
 yesterdayts = calendar.timegm(yesterday.timetuple())
 try:
     laststat = DayStatistic.objects.order_by('-ts')[0]
+    print "Last aggregation on %s" % laststat.date
     if laststat.ts >= yesterdayts:
-        print "Nothing to be done: All available statistics is synchronized"
+        print "Nothing to be done: All available statistics is aggregated."
         exit()
-    print "We have new stats to sync since last sync!"
+    print "We have new statistics to aggregate!"
     # First, get all new photos
     add_update_photos(laststat)
     if laststat.ts < earliestts:
