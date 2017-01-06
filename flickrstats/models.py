@@ -34,6 +34,7 @@ class DayStatistic(models.Model):
     ts = models.IntegerField()
     photos = models.ManyToManyField(Photo, through='PhotoStat')
     date_retrieved = models.DateTimeField(auto_now=True)
+    completed = models.BooleanField(default=True)
 
     def __unicode__(self):
         return str(self.date)

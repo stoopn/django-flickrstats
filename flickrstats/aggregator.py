@@ -109,7 +109,13 @@ def update_favorites(photo, ds=None):
             if user is None:
                 user = add_user(userid, fav['username'])
             newfav.user = user
-            newfav.save()
+            # Check if favorite already exists:
+            # There can only be one entry for photo-user:
+            try:
+                res = Favorite.objects.filter(photo=photo, user=user)[0]
+                print("Favorite already exists, skipping...")
+            except IndexError:
+                newfav.save()
         page += 1
     photo.save()
 
@@ -137,15 +143,23 @@ def update_comments(photo, ds=None):
             commts = int(comment['datecreate'])
             if ds is not None and (commts >= endts or commts < startts):
                 continue  # Nothing to do for old or future comments
+            newcomm_date = utc.localize(
+                datetime.datetime.fromtimestamp(commts))
             newcomment = Comment(
                 photo=photo,
-                date=utc.localize(datetime.datetime.fromtimestamp(commts)))
+                date=newcomm_date)
             userid = str(comment['author'])
             user = FlickrUser.objects.filter(userid=userid).first()
             if user is None:
                 user = add_user(userid, comment['authorname'])
             newcomment.user = user
-            newcomment.save()
+            # Check this is not a duplicate:
+            try:
+                res = Comment.objects.filter(
+                    photo=photo, date=newcomm_date, user=user)
+                print("Comment already exists, skipping")
+            except IndexError:
+                newcomment.save()
     else:
         photo.total_comments = 0
         photo.save()
@@ -195,8 +209,13 @@ yesterday = utc_today - datetime.timedelta(days=1)
 earliestday = utc_today - datetime.timedelta(days=28)
 earliestts = calendar.timegm(earliestday.timetuple())
 yesterdayts = calendar.timegm(yesterday.timetuple())
+
+failedstats = DayStatistic.objects.filter(completed=False)
+for failedstat in failedstats:
+    print("Removing old failed statistics from date %s", failedstat.date)
+    failedstat.delete()
 try:
-    laststat = DayStatistic.objects.order_by('-ts')[0]
+    laststat = DayStatistic.objects.filter(completed=True).order_by('-ts')[0]
     print "Last aggregation on %s" % laststat.date
     if laststat.ts >= yesterdayts:
         print "Nothing to be done: All available statistics is aggregated."
@@ -221,7 +240,9 @@ currdate = firstdate
 while currdate <= yesterday:
     currdatets = calendar.timegm(currdate.timetuple())
     currstat = DayStatistic(date=currdate,
-                            ts=currdatets)
+                            ts=currdatets, completed=False)
     currstat.save()
     aggregate_daily_photo_stats(currstat)
+    currstat.completed = True
+    currstat.save()
     currdate = currdate + datetime.timedelta(days=1)
